@@ -4,14 +4,14 @@ import torch
 from model import OCRModel
 from transforms import get_transform
 from utils import decode_prediction
-
-# Correct path
 import requests
 
-url = "https://drive.google.com/file/d/1z-j_qUnFK5oajH7bIMh3jVeOYq9aE6IH/view?usp=sharing"
-r = requests.get(url)
-open("ocr_model.pth", "wb").write(r.content)
+# Correct Google Drive download link
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1z-j_qUnFK5oajH7bIMh3jVeOYq9aE6IH"
 
+# Download model
+r = requests.get(MODEL_URL)
+open("ocr_model.pth", "wb").write(r.content)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
