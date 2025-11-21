@@ -1,27 +1,13 @@
-import torch
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from PIL import Image
-from model import OCRModel
-from transforms import get_transform
-from utils import decode_prediction
 
-image_path = "sample_images/test1.jpg"
-MODEL_PATH = "ocr_model.pth"
+processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
+model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten")
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+img = Image.open("assets/sample_prescription.jpg").convert("RGB")
 
-model = OCRModel()
-model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
-model.to(device)
-model.eval()
+pixel_values = processor(images=img, return_tensors="pt").pixel_values
+generated_ids = model.generate(pixel_values)
+text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
-transform = get_transform()
-
-img = Image.open(image_path).convert("RGB")
-img_tensor = transform(img).unsqueeze(0).to(device)
-
-with torch.no_grad():
-    preds = model(img_tensor)
-
-text = decode_prediction(preds)
-print("Extracted Text:")
-print(text)
+print("Extracted Text:\n", text)
