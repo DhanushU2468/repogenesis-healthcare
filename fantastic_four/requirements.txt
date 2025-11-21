@@ -4,3 +4,6 @@ transformers
 Pillow
 paddleocr
 paddlepaddle
+rapidfuzz
+python-bidi
+shapely
