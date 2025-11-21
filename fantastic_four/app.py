@@ -1,42 +1,39 @@
 import streamlit as st
 from PIL import Image
 import torch
-from model import OCRModel
-from transforms import get_transform
-from utils import decode_prediction
-import requests
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
-# Correct Google Drive download link
-MODEL_URL = "https://drive.google.com/uc?export=download&id=1z-j_qUnFK5oajH7bIMh3jVeOYq9aE6IH"
+# ---------------------------
+# Load Pretrained OCR Model
+# ---------------------------
+@st.cache_resource
+def load_model():
+    processor = TrOCRProcessor.from_pretrained("microsoft/trocr-base-handwritten")
+    model = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-base-handwritten")
+    return processor, model
 
-# Download model
-r = requests.get(MODEL_URL)
-open("ocr_model.pth", "wb").write(r.content)
+processor, model = load_model()
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+st.title("📄 Prescription OCR App (TrOCR Powered)")
+st.write("Upload a medical prescription image to extract text.")
 
-model = OCRModel()
-model.load_state_dict(torch.load("ocr_model.pth", map_location=device))
-model.to(device)
-model.eval()
-
-transform = get_transform()
-
-st.title("📄 Prescription OCR App")
-uploaded_file = st.file_uploader("Upload Prescription Image", type=["jpg","jpeg","png"])
+uploaded_file = st.file_uploader("Upload Prescription Image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     img = Image.open(uploaded_file).convert("RGB")
-    st.image(img, caption="Uploaded Image", use_column_width=True)
+    st.image(img, caption="Uploaded Prescription", use_column_width=True)
 
-    img_tensor = transform(img).unsqueeze(0).to(device)
-
-    with torch.no_grad():
-        preds = model(img_tensor)
-
-    text = decode_prediction(preds)
+    with st.spinner("Extracting text... Please wait ⏳"):
+        pixel_values = processor(images=img, return_tensors="pt").pixel_values
+        generated_ids = model.generate(pixel_values)
+        text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
     st.subheader("Extracted Text")
     st.code(text)
 
-    st.download_button("Download Extracted Text", text, "prescription_text.txt")
+    st.download_button(
+        label="Download Extracted Text",
+        data=text,
+        file_name="prescription_text.txt",
+        mime="text/plain"
+    )
