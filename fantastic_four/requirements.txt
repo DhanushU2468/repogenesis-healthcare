@@ -1,6 +1,4 @@
-torch
-torchvision
-pillow
 streamlit
-pyngrok
-numpy
+torch
+transformers
+Pillow
