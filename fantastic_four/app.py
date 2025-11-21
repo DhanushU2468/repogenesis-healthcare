@@ -6,12 +6,17 @@ from transforms import get_transform
 from utils import decode_prediction
 
 # Correct path
-MODEL_PATH = "ocr_model.pth"
+import requests
+
+url = "https://drive.google.com/file/d/1z-j_qUnFK5oajH7bIMh3jVeOYq9aE6IH/view?usp=sharing"
+r = requests.get(url)
+open("ocr_model.pth", "wb").write(r.content)
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 model = OCRModel()
-model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+model.load_state_dict(torch.load("ocr_model.pth", map_location=device))
 model.to(device)
 model.eval()
 
