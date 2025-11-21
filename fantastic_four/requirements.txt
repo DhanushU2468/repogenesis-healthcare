@@ -4,4 +4,3 @@ transformers
 Pillow
 paddleocr
 paddlepaddle
-opencv-python
