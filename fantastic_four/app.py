@@ -5,7 +5,9 @@ from model import OCRModel
 from transforms import get_transform
 from utils import decode_prediction
 
-MODEL_PATH = "fantastic_four/ocr_model.pth"
+# Correct path
+MODEL_PATH = "ocr_model.pth"
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 model = OCRModel()
