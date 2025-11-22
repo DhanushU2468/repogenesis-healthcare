@@ -171,10 +171,4 @@ Modify `preprocess_image()` function in `app.py`:
 ### Storage
 - In-memory dictionaries (no external database)
 
-## License
 
-Free to use for personal and educational purposes.
-
----
-
-**Made for better medication adherence** 💊
